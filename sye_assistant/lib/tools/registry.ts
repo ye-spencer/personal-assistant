@@ -1,8 +1,10 @@
+import { Cake, NotebookPen, type LucideIcon } from "lucide-react";
+
 export type Tool = {
   id: string;
   label: string;
-  /** Short text shown inside the sidebar token (1–2 chars). */
-  token: string;
+  /** Lucide icon shown as the sidebar token. */
+  icon: LucideIcon;
   /** Route segment under /tools/. */
   slug: string;
   description: string;
@@ -15,14 +17,14 @@ export const tools: readonly Tool[] = [
   {
     id: "birthdays",
     label: "Birthdays",
-    token: "BD",
+    icon: Cake,
     slug: "birthdays",
     description: "Birthdays from Google Calendar + gift brainstorming.",
   },
   {
     id: "notes",
     label: "Notes",
-    token: "MD",
+    icon: NotebookPen,
     slug: "notes",
     description: "Obsidian-style markdown storage.",
   },

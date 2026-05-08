@@ -18,16 +18,19 @@ export async function Sidebar() {
       <div className="h-px bg-zinc-200 dark:bg-zinc-800 mx-3 my-2" />
 
       <nav className="flex flex-col gap-2">
-        {tools.map((tool) => (
-          <Link
-            key={tool.id}
-            href={`/tools/${tool.slug}`}
-            title={`${tool.label} — ${tool.description}`}
-            className="flex items-center justify-center w-12 h-12 mx-auto rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 font-medium text-xs hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-          >
-            {tool.token}
-          </Link>
-        ))}
+        {tools.map((tool) => {
+          const Icon = tool.icon;
+          return (
+            <Link
+              key={tool.id}
+              href={`/tools/${tool.slug}`}
+              title={`${tool.label} — ${tool.description}`}
+              className="flex items-center justify-center w-12 h-12 mx-auto rounded-xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
+            >
+              <Icon className="w-5 h-5" aria-label={tool.label} />
+            </Link>
+          );
+        })}
       </nav>
 
       <div className="mt-auto flex flex-col items-center gap-2 px-2">
