@@ -32,6 +32,7 @@ A capture-and-resurface log for ideas the user has learned.
 - **Capture:** input box pinned at the top of the page; submit creates a new lesson (a few sentences of free text).
 - **Edit:** each lesson row has an inline edit button.
 - **All-lessons view:** chronological list of every lesson ever entered.
+- **Shuffle view:** an in-app mode that surfaces one random lesson at a time with a "next" control, for on-demand browsing independent of the scheduled resurfacing.
 - **Resurfacing:** periodically the user receives a lesson — either by email or surfaced on the dashboard. Cadence and selection strategy (random / spaced repetition / oldest-first) is an open question; default to "random one per day via email" until told otherwise.
 - **Storage:** structured rows (id, body, created_at, updated_at) — fits a small SQLite table.
 
