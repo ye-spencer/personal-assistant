@@ -1,4 +1,10 @@
-import { Cake, NotebookPen, type LucideIcon } from "lucide-react";
+import {
+  Bell,
+  Cake,
+  Lightbulb,
+  NotebookPen,
+  type LucideIcon,
+} from "lucide-react";
 
 export type Tool = {
   id: string;
@@ -27,6 +33,20 @@ export const tools: readonly Tool[] = [
     icon: NotebookPen,
     slug: "notes",
     description: "Obsidian-style markdown storage.",
+  },
+  {
+    id: "lessons",
+    label: "Lessons",
+    icon: Lightbulb,
+    slug: "lessons",
+    description: "Capture lessons learned and resurface them over time.",
+  },
+  {
+    id: "reminders",
+    label: "Reminders",
+    icon: Bell,
+    slug: "reminders",
+    description: "Dated follow-up reminders with a daily email digest.",
   },
 ] as const;
 

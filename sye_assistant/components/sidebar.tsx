@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Compass } from "lucide-react";
 import { tools } from "@/lib/tools/registry";
 import { auth, signOut } from "@/auth";
 
@@ -9,10 +10,10 @@ export async function Sidebar() {
     <aside className="flex flex-col gap-2 w-20 border-r border-zinc-200 dark:border-zinc-800 py-4 bg-zinc-50 dark:bg-zinc-950">
       <Link
         href="/"
-        className="flex items-center justify-center w-12 h-12 mx-auto rounded-xl bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900 font-semibold text-sm"
+        className="flex items-center justify-center w-12 h-12 mx-auto rounded-xl bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900"
         title="Home"
       >
-        PA
+        <Compass className="w-5 h-5" aria-label="Personal Assistant" />
       </Link>
 
       <div className="h-px bg-zinc-200 dark:bg-zinc-800 mx-3 my-2" />
