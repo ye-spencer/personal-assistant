@@ -9,6 +9,7 @@ A personal (single-user) assistant web app for the repo owner. The UI is a sideb
 Planned tools (non-exhaustive):
 - **Birthday tracker** — pulls birthdays from a Google Calendar; lets the user brainstorm gift ideas per contact.
 - **Markdown notes** — Obsidian-style local MD storage and editing.
+- **Habits** — spreadsheet-style daily habit tracker. Columns are habits, rows are dates; check a box to mark a habit done for that day. Main view shows the most recent 14 days with checkboxes; a second analytics view summarizes streaks/completion. Includes add/edit-habit affordances.
 
 Treat the sidebar as the extension point. New tools should plug in without modifying unrelated tools.
 

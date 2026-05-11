@@ -50,6 +50,18 @@ Quick, dated reminders about things to follow up on with people (e.g. "ask Sam a
 
 ---
 
+## Habits
+
+Spreadsheet-style daily habit tracker. Columns are habits, rows are dates; checking a cell marks that habit done for that day.
+
+- **Main view:** grid of the most recent 14 days (rows) × habits (columns) with a checkbox in each cell. Today's row sits at the top (or bottom — pick whichever reads more naturally and stay consistent).
+- **Analytics view:** per-habit summary — completion rate over the last N days, current streak, longest streak, simple sparkline or heatmap. Scope is "at-a-glance" rather than full charting.
+- **Add habit:** input/blurb at the top of the main view to create a new habit (just a name; created_at defaults to today).
+- **Edit habit:** rename or archive an existing habit. Archiving hides it from the grid going forward but preserves historical entries.
+- **Storage:** structured rows. Two tables: `habits` (id, name, created_at, archived_at, sort_order) and `habit_entries` (habit_id, date, done) keyed on `(habit_id, date)`. User has indicated they'll host a Postgres DB; talk to it via Drizzle ORM with `DATABASE_URL` from env.
+
+---
+
 ## Cross-cutting requirements (not yet built)
 
 The Lessons and Reminders tools both need infrastructure that doesn't exist yet:
