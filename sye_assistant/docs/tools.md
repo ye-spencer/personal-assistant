@@ -4,14 +4,25 @@ Product intent for each tool in the sidebar. Implementation lives under `app/(ap
 
 ---
 
-## Birthdays
+## People
 
-Pulls upcoming birthdays from a Google Calendar and helps brainstorm gift ideas per contact.
+A lightweight personal CRM for the people in the user's life. The tool tracks notes, check-in history, gift history, and a derived relationship-strength score — surfacing relationships that are going cold so the user can re-engage. Birthdays are one supported field on a contact, not the organizing concept.
 
-- **Source of truth:** a designated Google Calendar (read-only scope).
-- **Views:** upcoming list (next 30/60/90 days), per-contact detail page.
-- **Per-contact:** free-form gift-idea notes, optionally LLM-assisted brainstorming.
-- **Auth dependency:** requires Google Calendar scope on the Google OAuth token.
+- **Contacts:** the core entity. Each contact has a name, free-form notes, an optional closeness tier, an optional birthday, and a derived **relationship strength** score (see below). Add / edit / delete contacts from inside the tool — no external source of truth is required.
+- **Views:**
+  - **All contacts** — searchable/sortable list. Sort by name, last-contacted, relationship strength, or next birthday.
+  - **Stale list** — contacts the user hasn't reached out to in a configurable window (default 60 days); prompts to re-engage. The default landing view.
+  - **Upcoming birthdays** — secondary view; next 30 / 60 / 90 days for contacts who have a birthday set.
+  - **Per-contact detail page** — all fields, notes, gift log, check-in history, and an "I reached out today" button.
+- **Per-contact data:**
+  - Free-form notes (markdown ok) — context the user wants to remember about the person.
+  - **Check-in log** — dated entries of "reached out" events (call, text, in person, etc.) with an optional short note. This is the primary signal the tool runs on.
+  - **Gift log** — dated entries of gifts given (and optionally received), with notes on reaction. Used to avoid duplicates and to brainstorm future gifts; LLM-assisted suggestion is allowed but optional.
+- **Periodic check-in prompts:** the app periodically asks the user "have you reached out to X recently?" for contacts going stale, prioritizing those with a higher closeness tier. Answering yes appends to the check-in log; answering no leaves the staleness intact. Cadence and delivery (in-app prompt vs. email) is an open question — default to in-app prompts on the dashboard until told otherwise.
+- **Relationship strength:** a derived score per contact, computed from check-in frequency and recency, weighted by closeness tier. Surfaced on the contact list and detail page; not user-editable directly, but the tier and weighting that feed it are.
+- **Birthdays:** an optional date field on a contact. Can be entered manually, or seeded from a designated Google Calendar (read-only scope) when the user opts in. Calendar is a *source*, not the source of truth.
+- **Auth dependency:** none for the core CRM. Google Calendar scope on the Google OAuth token is required *only* if the user enables birthday sync.
+- **Storage:** structured rows. Tables roughly: `contacts` (id, name, birthday, tier, notes, created_at), `check_ins` (id, contact_id, occurred_on, channel, notes), `gifts` (id, contact_id, given_on, description, notes). Fits the same SQLite/Postgres store as the other tools.
 
 ---
 

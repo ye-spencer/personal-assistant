@@ -1,7 +1,7 @@
 import { getToolBySlug } from "@/lib/tools/registry";
 
-export default function BirthdaysPage() {
-  const tool = getToolBySlug("birthdays")!;
+export default function PeoplePage() {
+  const tool = getToolBySlug("people")!;
   return (
     <div className="p-8">
       <h1 className="text-2xl font-semibold mb-2">{tool.label}</h1>

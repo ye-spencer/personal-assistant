@@ -1,9 +1,9 @@
 import {
     Bell,
-    Cake,
     CheckSquare,
     Lightbulb,
     NotebookPen,
+    Users,
     type LucideIcon,
 } from "lucide-react";
 
@@ -22,11 +22,12 @@ export type Tool = {
 // shown in the sidebar.
 export const tools: readonly Tool[] = [
     {
-        id: "birthdays",
-        label: "Birthdays",
-        icon: Cake,
-        slug: "birthdays",
-        description: "Birthdays from Google Calendar + gift brainstorming.",
+        id: "people",
+        label: "People",
+        icon: Users,
+        slug: "people",
+        description:
+            "Personal CRM: contact notes, check-in history, relationship strength, gift log, and birthdays.",
     },
     {
         id: "notes",
