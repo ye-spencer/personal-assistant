@@ -8,6 +8,9 @@ const required = [
   "AUTH_GOOGLE_SECRET",
   "ALLOWED_EMAIL",
   "DATABASE_URL",
+  "RESEND_API_KEY",
+  "RESEND_FROM",
+  "CRON_SECRET",
 ] as const;
 
 type RequiredKey = (typeof required)[number];
@@ -25,4 +28,7 @@ export const env: Record<RequiredKey, string> = {
   AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET!,
   ALLOWED_EMAIL: process.env.ALLOWED_EMAIL!.toLowerCase(),
   DATABASE_URL: process.env.DATABASE_URL!,
+  RESEND_API_KEY: process.env.RESEND_API_KEY!,
+  RESEND_FROM: process.env.RESEND_FROM!,
+  CRON_SECRET: process.env.CRON_SECRET!,
 };

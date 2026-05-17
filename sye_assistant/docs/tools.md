@@ -44,8 +44,11 @@ A capture-and-resurface log for ideas the user has learned.
 - **Edit:** each lesson row has an inline edit button.
 - **All-lessons view:** chronological list of every lesson ever entered.
 - **Shuffle view:** an in-app mode that surfaces one random lesson at a time with a "next" control, for on-demand browsing independent of the scheduled resurfacing.
-- **Resurfacing:** periodically the user receives a lesson — either by email or surfaced on the dashboard. Cadence and selection strategy (random / spaced repetition / oldest-first) is an open question; default to "random one per day via email" until told otherwise.
-- **Storage:** structured rows (id, body, created_at, updated_at) — fits a small SQLite table.
+- **Resurfacing:** one random lesson per day is selected and surfaced in **both** places:
+  - On the dashboard, in a "Lesson of the day" panel alongside the tool grid.
+  - In the morning email blast (same email that carries the Reminders digest — one outbound email per day, not two).
+  Selection strategy is uniform random for the first pass; spaced repetition / oldest-first can come later.
+- **Storage:** Postgres via Drizzle (same `DATABASE_URL` as Habits). Table `lessons` (id, body, created_at, updated_at).
 
 ---
 
@@ -77,8 +80,8 @@ Spreadsheet-style daily habit tracker. Columns are habits, rows are dates; check
 
 The Lessons and Reminders tools both need infrastructure that doesn't exist yet:
 
-1. **Outbound email.** No SMTP/Resend/Postmark integration is wired up. Pick a provider before either tool's email path goes live. Resend is the path of least resistance; the `ALLOWED_EMAIL` env var is already the only recipient.
-2. **Scheduled jobs.** "Every morning" and "every once in a while" both require a cron. On Vercel, that's `vercel.json` cron triggers hitting an internal route handler protected by a shared secret. Self-hosted, that's a system cron + `curl`.
-3. **Persistence.** No DB exists yet. Lessons and Reminders both want a small relational store; SQLite via Drizzle is the lowest-friction option for a single-user app and avoids running a separate DB process.
+1. **Outbound email.** Resend. Single recipient is `ALLOWED_EMAIL`. `RESEND_API_KEY` in env.
+2. **Scheduled jobs.** Vercel Cron, defined in `vercel.json`, hitting internal route handlers under `/api/cron/*` protected by a shared `CRON_SECRET` header.
+3. **Persistence.** Postgres via Drizzle, using the same `DATABASE_URL` already set up for Habits. One DB across all tools.
 
 Raise these explicitly the first time either tool's backend is touched — don't silently pick a stack.
