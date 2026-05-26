@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { env } from "@/env";
-import { sendEmail } from "@/lib/email/send";
-import { renderMorningEmail } from "@/lib/email/morning";
+import { emailService } from "@/lib/email/service";
 import { getLessonOfTheDay } from "@/lib/lessons/daily";
 
 // Vercel Cron hits this with `Authorization: Bearer <CRON_SECRET>`. Same route
@@ -14,8 +13,7 @@ export async function GET(req: Request) {
 
   const now = new Date();
   const lesson = await getLessonOfTheDay();
-  const { subject, html, text } = renderMorningEmail({ lesson, date: now });
-  await sendEmail({ subject, html, text });
+  await emailService.sendMorningDigest({ lesson, date: now });
 
   return NextResponse.json({
     ok: true,

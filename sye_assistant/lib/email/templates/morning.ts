@@ -9,8 +9,11 @@ function escapeHtml(s: string): string {
     .replace(/'/g, "&#39;");
 }
 
-// One outbound email per day, shared across tools. Reminders / etc. will be
-// appended as additional sections — keep the structure section-per-tool.
+// Pure renderer — no side effects, no Resend dependency. Keeps the template
+// testable in isolation and lets the service decide how to send.
+//
+// Structured section-per-tool. Reminders / etc. get appended as additional
+// sections when those tools ship; the layout doesn't need to change.
 export function renderMorningEmail(parts: {
   lesson: Lesson | null;
   date: Date;
