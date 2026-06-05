@@ -8,6 +8,9 @@ export default auth((req) => {
 });
 
 export const config = {
-    // Run on every route except auth API, signin page, and Next.js internals.
-    matcher: ["/((?!api/auth|signin|_next/static|_next/image|favicon.ico).*)"],
+    // Run on every route except auth API, cron routes (own bearer-token auth),
+    // signin page, and Next.js internals.
+    matcher: [
+        "/((?!api/auth|api/cron|signin|_next/static|_next/image|favicon.ico).*)",
+    ],
 };
