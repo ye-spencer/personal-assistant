@@ -3,13 +3,11 @@
 import { useState, useTransition } from "react";
 import { Check } from "lucide-react";
 import { toggleEntry } from "@/lib/habits/actions";
-import { dateKey, lastNDates } from "@/lib/habits/dates";
+import { dateKey, FETCH_DAYS, lastNDates } from "@/lib/habits/dates";
 import { TIERS, tierMeta } from "@/lib/habits/tiers";
 import type { Habit } from "@/lib/db/schema";
 
-// How many days of entries the page fetches up front. "Show older" steps up to
-// this without a refetch.
-export const FETCH_DAYS = 60;
+// "Show older" steps up to FETCH_DAYS (the up-front fetch window) without a refetch.
 const STEPS = [14, 28, FETCH_DAYS];
 
 function cellKey(habitId: number, day: string) {
@@ -97,10 +95,15 @@ export function HabitsGrid({
                 g.items.map((habit, hi) => (
                   <th
                     key={habit.id}
-                    className={`px-2 py-2 align-bottom font-medium text-zinc-700 dark:text-zinc-300 border-b border-zinc-200 dark:border-zinc-800 ${hi === 0 ? "border-l" : ""}`}
+                    className={`px-2 py-2 align-top font-medium text-zinc-700 dark:text-zinc-300 border-b border-zinc-200 dark:border-zinc-800 ${hi === 0 ? "border-l" : ""}`}
                     title={habit.description ? `${habit.name} — ${habit.description}` : habit.name}
                   >
-                    <span className="block max-w-[6rem] truncate">{habit.name}</span>
+                    <span className="block w-[6rem] whitespace-normal break-words">{habit.name}</span>
+                    {habit.description ? (
+                      <span className="mt-0.5 block w-[6rem] whitespace-normal break-words text-xs font-normal text-zinc-500">
+                        {habit.description}
+                      </span>
+                    ) : null}
                   </th>
                 )),
               )}

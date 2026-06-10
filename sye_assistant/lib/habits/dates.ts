@@ -3,6 +3,12 @@
 // automatically. Anchored to UTC for the same reason as lib/lessons/daily.ts —
 // the server component and any future cron must agree on "today".
 
+// How many days of entries the page fetches up front. Lives here (a plain
+// module) rather than in the "use client" grid so Server Components can import
+// it as a real value — a "use client" export reaches the server as an opaque
+// client reference, not the number.
+export const FETCH_DAYS = 60;
+
 // YYYY-MM-DD in UTC.
 export function dateKey(d: Date = new Date()): string {
   return d.toISOString().slice(0, 10);

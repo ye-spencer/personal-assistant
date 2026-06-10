@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Settings } from "lucide-react";
 import { getEntryKeys, listActiveHabits } from "@/lib/habits/actions";
-import { lastNDates } from "@/lib/habits/dates";
-import { HabitsGrid, FETCH_DAYS } from "./habits-grid";
+import { FETCH_DAYS, lastNDates } from "@/lib/habits/dates";
+import { HabitsGrid } from "./habits-grid";
 
 export default async function HabitsPage() {
   const habits = await listActiveHabits();
