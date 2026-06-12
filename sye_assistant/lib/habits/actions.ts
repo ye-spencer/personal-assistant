@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/lib/db/client";
 import { habitEntries, habits, type Habit } from "@/lib/db/schema";
-import { dateKey, lastNDates } from "./dates";
+import { lastNDates } from "./dates";
 import type { HabitAnalytics } from "./types";
 
 async function requireAuth() {
@@ -160,38 +160,6 @@ export async function deleteHabit(id: number): Promise<void> {
   revalidate();
 }
 
-const ANALYTICS_WINDOW = 90;
-
-function currentStreak(done: Set<string>, today = new Date()): number {
-  // Grace day: if today isn't marked yet, start counting from yesterday so an
-  // unmarked "today" doesn't zero out an active streak.
-  const cursor = new Date(
-    Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()),
-  );
-  if (!done.has(dateKey(cursor))) cursor.setUTCDate(cursor.getUTCDate() - 1);
-  let streak = 0;
-  while (done.has(dateKey(cursor))) {
-    streak++;
-    cursor.setUTCDate(cursor.getUTCDate() - 1);
-  }
-  return streak;
-}
-
-function longestStreak(done: Set<string>, windowDays: string[]): number {
-  let best = 0;
-  let run = 0;
-  // windowDays is most-recent first; direction doesn't matter for a max run.
-  for (const day of windowDays) {
-    if (done.has(day)) {
-      run++;
-      if (run > best) best = run;
-    } else {
-      run = 0;
-    }
-  }
-  return best;
-}
-
 export async function getAnalytics(): Promise<HabitAnalytics[]> {
   await requireAuth();
   const active = await db
@@ -201,7 +169,9 @@ export async function getAnalytics(): Promise<HabitAnalytics[]> {
     .orderBy(...habitOrder);
   if (active.length === 0) return [];
 
-  const since = lastNDates(ANALYTICS_WINDOW).at(-1)!;
+  const last7 = lastNDates(7);
+  const last30 = lastNDates(30);
+  const since = last30.at(-1)!;
   const entries = await db
     .select({ habitId: habitEntries.habitId, doneOn: habitEntries.doneOn })
     .from(habitEntries)
@@ -220,10 +190,6 @@ export async function getAnalytics(): Promise<HabitAnalytics[]> {
     .groupBy(habitEntries.habitId);
   const totalByHabit = new Map(totals.map((t) => [t.habitId, Number(t.total)]));
 
-  const last7 = lastNDates(7);
-  const last30 = lastNDates(30);
-  const window = lastNDates(ANALYTICS_WINDOW);
-
   return active.map((habit) => {
     const done = byHabit.get(habit.id) ?? new Set<string>();
     const hit = (days: string[]) => days.filter((d) => done.has(d)).length / days.length;
@@ -231,8 +197,6 @@ export async function getAnalytics(): Promise<HabitAnalytics[]> {
       habit,
       rate7: hit(last7),
       rate30: hit(last30),
-      currentStreak: currentStreak(done),
-      longestStreak: longestStreak(done, window),
       total: totalByHabit.get(habit.id) ?? 0,
     };
   });

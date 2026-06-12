@@ -316,8 +316,6 @@ export function AdminClient({
                   <th className="px-3 py-2 font-medium">Habit</th>
                   <th className="px-3 py-2 font-medium text-right">7d</th>
                   <th className="px-3 py-2 font-medium text-right">30d</th>
-                  <th className="px-3 py-2 font-medium text-right">Streak</th>
-                  <th className="px-3 py-2 font-medium text-right">Longest</th>
                   <th className="px-3 py-2 font-medium text-right">Total</th>
                 </tr>
               </thead>
@@ -340,12 +338,6 @@ export function AdminClient({
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">
                       {Math.round(a.rate30 * 100)}%
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {a.currentStreak}
-                    </td>
-                    <td className="px-3 py-2 text-right tabular-nums">
-                      {a.longestStreak}
                     </td>
                     <td className="px-3 py-2 text-right tabular-nums">{a.total}</td>
                   </tr>

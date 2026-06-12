@@ -6,7 +6,5 @@ export type HabitAnalytics = {
   habit: Habit;
   rate7: number; // 0..1
   rate30: number; // 0..1
-  currentStreak: number;
-  longestStreak: number;
   total: number;
 };
