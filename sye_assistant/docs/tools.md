@@ -68,11 +68,11 @@ Quick, dated reminders about things to follow up on with people (e.g. "ask Sam a
 
 Spreadsheet-style daily habit tracker. Columns are habits, rows are dates; checking a cell marks that habit done for that day.
 
-- **Main view:** grid of the most recent 14 days (rows) × habits (columns) with a checkbox in each cell. Today's row sits at the top (or bottom — pick whichever reads more naturally and stay consistent).
-- **Analytics view:** per-habit summary — completion rate over the last N days, current streak, longest streak, simple sparkline or heatmap. Scope is "at-a-glance" rather than full charting.
-- **Add habit:** input/blurb at the top of the main view to create a new habit (just a name; created_at defaults to today).
-- **Edit habit:** rename or archive an existing habit. Archiving hides it from the grid going forward but preserves historical entries.
-- **Storage:** structured rows. Two tables: `habits` (id, name, created_at, archived_at, sort_order) and `habit_entries` (habit_id, date, done) keyed on `(habit_id, date)`. User has indicated they'll host a Postgres DB; talk to it via Drizzle ORM with `DATABASE_URL` from env.
+- **Main view:** grid of the most recent 14 days (rows) × habits (columns) with a checkbox in each cell. Today's row sits at the top. Rows are **date-derived, not stored** — the grid renders the real last N calendar days from today and advances automatically each day, so there is no "add day" button or `days` table. A "Show older" control expands the window (14 → 28 → 60). Any visible cell (incl. past days) is editable for backfill. Habits are grouped into three colored **tiers** (1/2/3).
+- **Analytics view:** per-habit summary — completion rate over the last 7/30 days and total completions. Lives on the admin page. Scope is "at-a-glance" (numbers only) rather than full charting. Deliberately excludes streaks and any window-dependent stats that get inaccurate or expensive to maintain as history grows; the kept stats are all cheap to derive on the fly.
+- **Add habit:** input at the top of the admin page to create a habit (name, tier, optional description).
+- **Edit habit:** rename, edit description, change tier, reorder, or archive an existing habit. Archiving hides it from the grid going forward but preserves historical entries; archived habits can be restored or permanently deleted.
+- **Storage:** structured rows. Two tables: `habits` (id, name, description, tier, sort_order, created_at, archived_at) and `habit_entries` (id, habit_id, done_on date, created_at) with a unique index on `(habit_id, done_on)`. Entries are **presence-based**: a row exists iff the habit was done that day (no `done` boolean) — checking inserts, unchecking deletes. Postgres via Drizzle with `DATABASE_URL` from env.
 
 ---
 
