@@ -27,7 +27,7 @@ export const tools: readonly Tool[] = [
         icon: Users,
         slug: "people",
         description:
-            "Personal CRM: contact notes, check-in history, relationship strength, gift log, and birthdays.",
+            "Personal CRM: keep contacts with birthdays, notes, and how you met.",
     },
     {
         id: "notes",
