@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import { env } from "@/env";
 import type { Lesson } from "@/lib/db/schema";
+import type { BirthdayDigest } from "@/lib/people/daily";
 import { renderMorningEmail } from "./templates/morning";
 
 type SendArgs = {
@@ -36,6 +37,7 @@ class EmailService {
   // a section in this email plug into renderMorningEmail's args.
   async sendMorningDigest(args: {
     lesson: Lesson | null;
+    birthdays: BirthdayDigest;
     date: Date;
   }): Promise<void> {
     const rendered = renderMorningEmail(args);

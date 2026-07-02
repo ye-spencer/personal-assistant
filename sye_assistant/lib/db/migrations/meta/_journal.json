@@ -15,6 +15,27 @@
       "when": 1780887841939,
       "tag": "0001_lying_james_howlett",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781835361670,
+      "tag": "0002_peaceful_dracula",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1781835970595,
+      "tag": "0003_colossal_darkstar",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1781836100000,
+      "tag": "0004_fix_birth_month_type",
+      "breakpoints": true
     }
   ]
 }

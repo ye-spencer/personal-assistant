@@ -24,6 +24,21 @@ A lightweight personal CRM for the people in the user's life. The tool tracks no
 - **Auth dependency:** none for the core CRM. Google Calendar scope on the Google OAuth token is required *only* if the user enables birthday sync.
 - **Storage:** structured rows. Tables roughly: `contacts` (id, name, birthday, tier, notes, created_at), `check_ins` (id, contact_id, occurred_on, channel, notes), `gifts` (id, contact_id, given_on, description, notes). Fits the same SQLite/Postgres store as the other tools.
 
+### Implemented (v1)
+
+A deliberately minimal first cut — contacts + per-contact notes + birthdays — laying the schema groundwork for the rest of the spec above. Built:
+
+- **Tables** (Postgres via Drizzle, same `DATABASE_URL`):
+  - `contacts` (id, first_name, middle_name, last_name, **birth_month / birth_day / birth_year** (all nullable `integer`), how_we_met, info, gift_planning `boolean`, created_at, updated_at). `id` is the stable handle other tools (gift planning) will reference. **Birthday is year-optional:** month+day are set together (or both null); year is independently optional, so a birthday can be known without the year.
+  - `contact_notes` (id, contact_id → contacts ON DELETE CASCADE, body, created_at, updated_at). Timestamped free-form notes, Lessons-style but scoped to one person.
+  - `gift_plans` (id, contact_id → contacts ON DELETE CASCADE, brainstorm text, purchased text, updated_at; unique index on contact_id). One upserted row per contact: a freeform gift-idea brainstorm and a freeform log of gifts actually given.
+- **"Mark them" → `gift_planning` flag.** A per-contact boolean the user toggles to opt a contact into the gift-planning workflow. Shown as a gift icon in the list/detail. Future gift-planning app reads contacts where `gift_planning = true` (and, where present, birth_month/birth_day).
+- **List view** (`/tools/people`): contact count, add-person form, and a search box. **Search is client-side, case-insensitive substring** matching against first name, last name, and the full "first middle last" string (so "bob", "smith", and "bob s" all match "Bob Smith"). Small single-user dataset, so the full list loads and filters in the browser.
+- **Gift-planning tab** (`/tools/people/gifts`): a secondary tab listing every contact marked `gift_planning = true`, **ordered by soonest upcoming birthday** (year-agnostic; contacts with no birthday sort to the end). Each gets a card with two freeform textareas — "Gift ideas / brainstorm" and "Gifts given" — saved (upserted) to `gift_plans`. Top-level tab bar switches between People and Gift planning.
+- **Morning email birthdays** (`lib/people/daily.ts` → `getBirthdayDigest`, rendered in the daily digest): two sections — **Birthdays — next 2 days** for *all* contacts (the 2-day window absorbs UTC day-boundary skew so a birthday is never missed), and **Gift planning — next 2 months** for *gift-planning* contacts only (starting after the 2-day window, which already covers them). Upcoming-birthday math is year-agnostic and UTC-anchored (`daysUntilBirthday` in `lib/people/format.ts`). Empty sections are omitted.
+- **Detail view** (`/tools/people/[id]`): all fields with inline edit/delete, plus a notes section — a top textarea where Enter adds a note (Shift+Enter for a newline), and each note is editable/deletable.
+- **Not yet built** (still spec-only above): check-in log, relationship-strength score, closeness tier, stale list, upcoming-birthdays views, periodic check-in prompts, and Google Calendar birthday sync. No auth/users table — the app is single-user (`ALLOWED_EMAIL`); "user" in the original ask maps to a `contact` row.
+
 ---
 
 ## Notes

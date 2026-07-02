@@ -1,4 +1,5 @@
 import {
+  boolean,
   date,
   integer,
   pgTable,
@@ -49,3 +50,60 @@ export const habitEntries = pgTable(
 export type Habit = typeof habits.$inferSelect;
 export type NewHabit = typeof habits.$inferInsert;
 export type HabitEntry = typeof habitEntries.$inferSelect;
+
+// People in the user's life — a lightweight personal CRM. One row per contact,
+// the stable entity other tools (e.g. gift planning) can reference by `id`.
+// Birthday is split into month/day/year so the year can be unknown: month+day
+// are set together (or both null), year is independently optional. `giftPlanning`
+// is the user-set "mark" flag: contacts opted into the gift-planning workflow.
+// Free-form per-contact notes live in `contactNotes`; `howWeMet` and `info` are
+// single fixed fields on the contact.
+export const contacts = pgTable("contacts", {
+  id: serial("id").primaryKey(),
+  firstName: text("first_name").notNull(),
+  middleName: text("middle_name").notNull().default(""),
+  lastName: text("last_name").notNull().default(""),
+  birthMonth: integer("birth_month"),
+  birthDay: integer("birth_day"),
+  birthYear: integer("birth_year"),
+  howWeMet: text("how_we_met").notNull().default(""),
+  info: text("info").notNull().default(""),
+  giftPlanning: boolean("gift_planning").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// Timestamped free-form notes about a contact, like Lessons but scoped to one
+// person. Deleting a contact cascades to its notes.
+export const contactNotes = pgTable("contact_notes", {
+  id: serial("id").primaryKey(),
+  contactId: integer("contact_id")
+    .notNull()
+    .references(() => contacts.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+// One gift-planning sheet per contact: a freeform brainstorm of potential gift
+// ideas and a freeform log of what was actually given. Only meaningful for
+// contacts with `giftPlanning = true`, but the row is keyed by contact and
+// upserted on save. One row per contact (unique index).
+export const giftPlans = pgTable(
+  "gift_plans",
+  {
+    id: serial("id").primaryKey(),
+    contactId: integer("contact_id")
+      .notNull()
+      .references(() => contacts.id, { onDelete: "cascade" }),
+    brainstorm: text("brainstorm").notNull().default(""),
+    purchased: text("purchased").notNull().default(""),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("gift_plans_contact").on(t.contactId)],
+);
+
+export type Contact = typeof contacts.$inferSelect;
+export type NewContact = typeof contacts.$inferInsert;
+export type ContactNote = typeof contactNotes.$inferSelect;
+export type GiftPlan = typeof giftPlans.$inferSelect;
