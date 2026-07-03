@@ -19,6 +19,23 @@ export const lessons = pgTable("lessons", {
 export type Lesson = typeof lessons.$inferSelect;
 export type NewLesson = typeof lessons.$inferInsert;
 
+// Dated follow-up reminders. `body` is the free-text blurb; `dueOn` is a
+// calendar date (no time — the user picks a date). Date-only is timezone-
+// agnostic on purpose: "due June 12" means the same day everywhere, and the
+// app decides what "today" is in the user's timezone (see lib/reminders/dates).
+// Reminders are surfaced in the morning email on their due day and deleted the
+// day after (lib/reminders/daily.ts), so the table only ever holds today + future.
+export const reminders = pgTable("reminders", {
+  id: serial("id").primaryKey(),
+  body: text("body").notNull(),
+  dueOn: date("due_on").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type Reminder = typeof reminders.$inferSelect;
+export type NewReminder = typeof reminders.$inferInsert;
+
 // Habits the user tracks. Columns in the tracker grid. `tier` (1|2|3) groups
 // habits into colored sections; `sortOrder` orders them within a tier.
 // `archivedAt` hides a habit from the grid while preserving its history.
