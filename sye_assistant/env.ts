@@ -22,7 +22,7 @@ if (missing.length > 0) {
   );
 }
 
-export const env: Record<RequiredKey, string> = {
+export const env: Record<RequiredKey, string> & { APP_TIME_ZONE: string } = {
   AUTH_SECRET: process.env.AUTH_SECRET!,
   AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID!,
   AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET!,
@@ -31,4 +31,7 @@ export const env: Record<RequiredKey, string> = {
   RESEND_API_KEY: process.env.RESEND_API_KEY!,
   RESEND_FROM: process.env.RESEND_FROM!,
   CRON_SECRET: process.env.CRON_SECRET!,
+  // IANA timezone that defines "today" for date-only features (reminders).
+  // Optional — defaults to US Eastern, which matches the 10:00 UTC morning cron.
+  APP_TIME_ZONE: process.env.APP_TIME_ZONE || "America/New_York",
 };

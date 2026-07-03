@@ -77,6 +77,18 @@ Quick, dated reminders about things to follow up on with people (e.g. "ask Sam a
 - **Dashboard panel:** the home page shows today's reminders alongside the tool grid.
 - **Storage:** structured rows (id, body, due_at, created_at) — same SQLite store as Lessons is fine.
 
+### Implemented (v1)
+
+A deliberately minimal first cut — text + date, list, email, auto-cleanup. Built:
+
+- **Table** `reminders` (Postgres via Drizzle, same `DATABASE_URL`): `id`, `body`, `due_on` (`date`, no time), `created_at`, `updated_at`. **Date-only on purpose:** the user picks a calendar day, so there's no time-of-day and no per-row timezone ambiguity.
+- **Timezone.** "Today"/"upcoming"/"passed" are anchored to a real IANA zone (`APP_TIME_ZONE` env var, optional, defaults to `America/New_York`) via `lib/reminders/dates.ts` → `todayKey`, *not* UTC. Anchoring to UTC would wrongly flip a reminder due today to "passed" between ~8pm and midnight Eastern. The morning cron runs at 10:00 UTC (early-morning ET), so the email lands on the correct local day.
+- **Page** (`/tools/reminders`): one text input + native date picker + Add, then an "Upcoming" list (due today or later, soonest first) with a colored month/day/weekday badge per row (today highlighted). Each row has inline edit (text + date) and delete. Distinct date-badge card styling to differentiate from Lessons.
+- **Morning email** (`lib/reminders/daily.ts`): a "Reminders — today" section listing every reminder whose `due_on` equals today. Wired through `renderMorningEmail` / `sendMorningDigest`, alongside the lesson and birthdays.
+- **Auto-removal.** After the email is built, the cron calls `purgePastReminders`, deleting rows with `due_on < today`. So a reminder always gets its email on its due day, then is cleaned up — the table only ever holds today + future. The page list also filters to `due_on >= today`, so the UI is correct even between cron runs.
+- **Dashboard panel** (`app/(app)/page.tsx`): a "Reminders — today" panel alongside the Lesson-of-the-day panel and tool grid, listing reminders whose `due_on` is today (empty state when none). Uses the same `getRemindersDueToday` as the email.
+- **Not yet built** (still spec-only above): optional time-of-day.
+
 ---
 
 ## Habits

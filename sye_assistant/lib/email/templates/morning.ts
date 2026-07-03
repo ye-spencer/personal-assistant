@@ -1,4 +1,4 @@
-import type { Lesson } from "@/lib/db/schema";
+import type { Lesson, Reminder } from "@/lib/db/schema";
 import type { BirthdayDigest, UpcomingBirthday } from "@/lib/people/daily";
 import { formatBirthdayShort, fullName } from "@/lib/people/format";
 
@@ -25,6 +25,7 @@ function relativeDays(n: number): string {
 export function renderMorningEmail(parts: {
   lesson: Lesson | null;
   birthdays: BirthdayDigest;
+  reminders: Reminder[];
   date: Date;
 }): { subject: string; html: string; text: string } {
   const dateLabel = parts.date.toLocaleDateString("en-US", {
@@ -42,6 +43,17 @@ export function renderMorningEmail(parts: {
   const lessonText = parts.lesson
     ? parts.lesson.body
     : "No lessons captured yet.";
+
+  // Reminders due today — the whole point of the tool. Shown near the top.
+  const remindersSectionHtml =
+    parts.reminders.length > 0
+      ? section(
+          "Reminders — today",
+          `<ul style="margin:0;padding-left:18px">${parts.reminders
+            .map((r) => `<li>${escapeHtml(r.body)}</li>`)
+            .join("")}</ul>`,
+        )
+      : "";
 
   const { soon, giftingUpcoming } = parts.birthdays;
 
@@ -80,11 +92,19 @@ export function renderMorningEmail(parts: {
     <h2 style="font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:#71717a;margin:0 0 8px 0">Lesson of the day</h2>
     ${lessonHtml}
   </section>
+  ${remindersSectionHtml}
   ${soonSectionHtml}
   ${giftSectionHtml}
 </body></html>`;
 
   const textParts = [dateLabel, "", "LESSON OF THE DAY", lessonText];
+  if (parts.reminders.length > 0) {
+    textParts.push(
+      "",
+      "REMINDERS — TODAY",
+      ...parts.reminders.map((r) => `- ${r.body}`),
+    );
+  }
   if (soon.length > 0) {
     textParts.push(
       "",
