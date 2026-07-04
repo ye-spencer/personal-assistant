@@ -34,7 +34,7 @@ export const tools: readonly Tool[] = [
         label: "Notes",
         icon: NotebookPen,
         slug: "notes",
-        description: "Obsidian-style markdown storage.",
+        description: "Markdown notes with search and rendered preview.",
     },
     {
         id: "lessons",
@@ -48,7 +48,7 @@ export const tools: readonly Tool[] = [
         label: "Reminders",
         icon: Bell,
         slug: "reminders",
-        description: "Dated follow-up reminders with a daily email digest.",
+        description: "Dated follow-up reminders in the daily email digest.",
     },
     {
         id: "habits",
