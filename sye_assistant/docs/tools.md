@@ -45,9 +45,18 @@ A deliberately minimal first cut — contacts + per-contact notes + birthdays �
 
 Obsidian-style markdown storage and editing.
 
-- **Storage:** `.md` files on disk (preserves the "readable outside the app" property — confirm filesystem path with user before first write).
-- **Views:** file tree, editor pane (markdown source + preview).
-- **Operations:** create, rename, delete, edit, link between notes.
+- **Storage:** markdown documents. Original spec called for `.md` files on disk; **v1 uses MongoDB instead** (see below) — the canonical stored form is still raw markdown, just in a document store rather than the filesystem.
+- **Views:** searchable note list, rendered preview, source editor.
+- **Operations:** create, delete, edit. (Rename = editing the title. Inter-note linking is not yet built.)
+
+### Implemented (v1)
+
+A two-pane markdown notebook backed by MongoDB (the one tool not on Postgres — the rest of the app stays on `DATABASE_URL`).
+
+- **Storage:** MongoDB collection `notes`, database from `MONGODB_DB` (default `sye_assistant`), connection from `MONGODB_URI`. Documents: `{ _id, title, body (raw markdown), createdAt, updatedAt }`. **Body is stored as markdown**; HTML is derived at render time and never persisted. Connection is a globalThis-cached `MongoClient` (`lib/mongo/client.ts`), mirroring the pg client's HMR-safe pattern. Env wired through `env.ts` (`MONGODB_URI` required, `MONGODB_DB` optional).
+- **Page** (`/tools/notes`): left column = a **New note** button, a **simple search** box (client-side, case-insensitive substring over title *and* body), and a scrollable note list (most-recently-updated first). Right pane renders the selected note's markdown to HTML (via `marked`, styled by a lightweight `.markdown-body` block in `globals.css` — no typography plugin).
+- **Edit flow:** an **Edit** button in the top-left toolbar switches the right pane into an editor (title input + monospace markdown textarea). **Save** is disabled until edit mode is on; **Cancel** discards the draft and returns to the rendered view. **New note** opens the editor on a blank draft and only writes to Mongo on Save (no empty docs). A **Delete** button (toolbar right) removes the selected note. Server actions in `lib/notes/actions.ts` serialize `ObjectId`/`Date` to strings for the client.
+- **Not yet built** (still spec-only above): inter-note linking, and any rename UX beyond editing the title field.
 
 ---
 

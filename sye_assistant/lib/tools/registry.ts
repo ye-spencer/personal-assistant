@@ -34,7 +34,7 @@ export const tools: readonly Tool[] = [
         label: "Notes",
         icon: NotebookPen,
         slug: "notes",
-        description: "Obsidian-style markdown storage.",
+        description: "Markdown notes with search and rendered preview.",
     },
     {
         id: "lessons",

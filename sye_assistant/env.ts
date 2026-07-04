@@ -8,6 +8,7 @@ const required = [
   "AUTH_GOOGLE_SECRET",
   "ALLOWED_EMAIL",
   "DATABASE_URL",
+  "MONGODB_URI",
   "RESEND_API_KEY",
   "RESEND_FROM",
   "CRON_SECRET",
@@ -22,16 +23,24 @@ if (missing.length > 0) {
   );
 }
 
-export const env: Record<RequiredKey, string> & { APP_TIME_ZONE: string } = {
+export const env: Record<RequiredKey, string> & {
+  APP_TIME_ZONE: string;
+  MONGODB_DB: string;
+} = {
   AUTH_SECRET: process.env.AUTH_SECRET!,
   AUTH_GOOGLE_ID: process.env.AUTH_GOOGLE_ID!,
   AUTH_GOOGLE_SECRET: process.env.AUTH_GOOGLE_SECRET!,
   ALLOWED_EMAIL: process.env.ALLOWED_EMAIL!.toLowerCase(),
   DATABASE_URL: process.env.DATABASE_URL!,
+  // MongoDB backs the Notes tool (markdown docs). The rest of the app is Postgres.
+  MONGODB_URI: process.env.MONGODB_URI!,
   RESEND_API_KEY: process.env.RESEND_API_KEY!,
   RESEND_FROM: process.env.RESEND_FROM!,
   CRON_SECRET: process.env.CRON_SECRET!,
   // IANA timezone that defines "today" for date-only features (reminders).
   // Optional — defaults to US Eastern, which matches the 10:00 UTC morning cron.
   APP_TIME_ZONE: process.env.APP_TIME_ZONE || "America/New_York",
+  // Mongo database name for Notes. Optional — the URI may already name a db;
+  // this defaults it when it doesn't.
+  MONGODB_DB: process.env.MONGODB_DB || "sye_assistant",
 };

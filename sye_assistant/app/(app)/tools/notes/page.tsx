@@ -1,12 +1,7 @@
-import { getToolBySlug } from "@/lib/tools/registry";
+import { listNotes } from "@/lib/notes/actions";
+import { NotesClient } from "./notes-client";
 
-export default function NotesPage() {
-  const tool = getToolBySlug("notes")!;
-  return (
-    <div className="p-8">
-      <h1 className="text-2xl font-semibold mb-2">{tool.label}</h1>
-      <p className="text-zinc-500">{tool.description}</p>
-      <p className="mt-6 text-sm text-zinc-400">Not implemented yet.</p>
-    </div>
-  );
+export default async function NotesPage() {
+  const notes = await listNotes();
+  return <NotesClient initialNotes={notes} />;
 }
