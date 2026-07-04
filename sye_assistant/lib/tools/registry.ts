@@ -27,7 +27,7 @@ export const tools: readonly Tool[] = [
         icon: Users,
         slug: "people",
         description:
-            "Personal CRM: keep contacts with birthdays, notes, and how you met.",
+            "Keep contacts with birthdays, notes, and how you met.",
     },
     {
         id: "notes",
@@ -56,7 +56,7 @@ export const tools: readonly Tool[] = [
         icon: CheckSquare,
         slug: "habits",
         description:
-            "Daily habit tracker: check off habits and view analytics.",
+            "Check off habits and view analytics.",
     },
 ] as const;
 
