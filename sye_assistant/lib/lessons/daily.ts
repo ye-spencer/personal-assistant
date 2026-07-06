@@ -20,13 +20,21 @@ function hash(s: string): number {
   return h >>> 0;
 }
 
-// Deterministic per-day selection. Same date → same lesson, on the dashboard
-// and in the morning email. Switching algorithms (spaced repetition, etc.) is
-// a localized change to this function.
-export async function getLessonOfTheDay(
+export const DAILY_LESSON_COUNT = 3;
+
+// Deterministic per-day selection. Same date → same lessons, on the dashboard
+// and in the morning email. Each lesson is ranked by hashing the date with its
+// id, so the day's picks are distinct and stable regardless of insertion
+// order. Switching algorithms (spaced repetition, etc.) is a localized change
+// to this function.
+export async function getLessonsOfTheDay(
   dateKey: string = todayKey(),
-): Promise<Lesson | null> {
+  count: number = DAILY_LESSON_COUNT,
+): Promise<Lesson[]> {
   const rows = await db.select().from(lessons).orderBy(asc(lessons.id));
-  if (rows.length === 0) return null;
-  return rows[hash(dateKey) % rows.length];
+  return rows
+    .map((row) => ({ row, rank: hash(`${dateKey}:${row.id}`) }))
+    .sort((a, b) => a.rank - b.rank || a.row.id - b.row.id)
+    .slice(0, count)
+    .map((entry) => entry.row);
 }

@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { Bell, Lightbulb } from "lucide-react";
 import { tools } from "@/lib/tools/registry";
-import { getLessonOfTheDay } from "@/lib/lessons/daily";
+import { getLessonsOfTheDay } from "@/lib/lessons/daily";
 import { getRemindersDueToday } from "@/lib/reminders/daily";
 
 export default async function Home() {
-  const lessonOfTheDay = await getLessonOfTheDay();
+  const lessonsOfTheDay = await getLessonsOfTheDay();
   const remindersToday = await getRemindersDueToday();
 
   return (
@@ -16,18 +16,24 @@ export default async function Home() {
         <div className="flex items-center gap-2 mb-2">
           <Lightbulb className="w-4 h-4 text-zinc-500" />
           <h2 className="text-sm font-medium text-zinc-500 uppercase tracking-wide">
-            Lesson of the day
+            Lessons of the day
           </h2>
         </div>
-        {lessonOfTheDay ? (
+        {lessonsOfTheDay.length > 0 ? (
           <Link
             href="/tools/lessons"
             className="block p-5 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 transition-colors"
           >
-            <p className="whitespace-pre-wrap">{lessonOfTheDay.body}</p>
-            <p className="mt-2 text-[11px] text-zinc-400">
-              Captured {new Date(lessonOfTheDay.createdAt).toLocaleDateString()}
-            </p>
+            <ul className="flex flex-col gap-4">
+              {lessonsOfTheDay.map((lesson) => (
+                <li key={lesson.id}>
+                  <p className="whitespace-pre-wrap">{lesson.body}</p>
+                  <p className="mt-2 text-[11px] text-zinc-400">
+                    Captured {new Date(lesson.createdAt).toLocaleDateString()}
+                  </p>
+                </li>
+              ))}
+            </ul>
           </Link>
         ) : (
           <Link
