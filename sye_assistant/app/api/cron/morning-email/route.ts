@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { env } from "@/env";
 import { emailService } from "@/lib/email/service";
-import { getLessonOfTheDay } from "@/lib/lessons/daily";
+import { getLessonsOfTheDay } from "@/lib/lessons/daily";
 import { getBirthdayDigest } from "@/lib/people/daily";
 import { getRemindersDueToday, purgePastReminders } from "@/lib/reminders/daily";
 
@@ -14,11 +14,11 @@ export async function GET(req: Request) {
   }
 
   const now = new Date();
-  const lesson = await getLessonOfTheDay();
+  const dailyLessons = await getLessonsOfTheDay();
   const birthdays = await getBirthdayDigest(now);
   const dueReminders = await getRemindersDueToday(now);
   await emailService.sendMorningDigest({
-    lesson,
+    lessons: dailyLessons,
     birthdays,
     reminders: dueReminders,
     date: now,
@@ -31,7 +31,7 @@ export async function GET(req: Request) {
   return NextResponse.json({
     ok: true,
     sentAt: now.toISOString(),
-    lessonId: lesson?.id ?? null,
+    lessonIds: dailyLessons.map((l) => l.id),
     birthdaysSoon: birthdays.soon.length,
     giftBirthdaysUpcoming: birthdays.giftingUpcoming.length,
     remindersDue: dueReminders.length,

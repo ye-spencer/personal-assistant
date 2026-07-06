@@ -66,10 +66,10 @@ A capture-and-resurface log for ideas the user has learned.
 
 - **Capture:** input box pinned at the top of the page; submit creates a new lesson (a few sentences of free text).
 - **Edit:** each lesson row has an inline edit button.
-- **All-lessons view:** chronological list of every lesson ever entered.
+- **All-lessons view:** chronological list of every lesson ever entered, paginated at 25 lessons per page with Previous/Next controls and a page indicator.
 - **Shuffle view:** an in-app mode that surfaces one random lesson at a time with a "next" control, for on-demand browsing independent of the scheduled resurfacing.
-- **Resurfacing:** one random lesson per day is selected and surfaced in **both** places:
-  - On the dashboard, in a "Lesson of the day" panel alongside the tool grid.
+- **Resurfacing:** three random lessons per day are selected and surfaced in **both** places:
+  - On the dashboard, in a "Lessons of the day" panel alongside the tool grid.
   - In the morning email blast (same email that carries the Reminders digest — one outbound email per day, not two).
   Selection strategy is uniform random for the first pass; spaced repetition / oldest-first can come later.
 - **Storage:** Postgres via Drizzle (same `DATABASE_URL` as Habits). Table `lessons` (id, body, created_at, updated_at).

@@ -23,7 +23,7 @@ function relativeDays(n: number): string {
 // Structured section-per-tool. Reminders / etc. get appended as additional
 // sections when those tools ship; the layout doesn't need to change.
 export function renderMorningEmail(parts: {
-  lesson: Lesson | null;
+  lessons: Lesson[];
   birthdays: BirthdayDigest;
   reminders: Reminder[];
   date: Date;
@@ -36,13 +36,20 @@ export function renderMorningEmail(parts: {
 
   const subject = `Morning — ${dateLabel}`;
 
-  const lessonHtml = parts.lesson
-    ? `<p style="white-space:pre-wrap;margin:0">${escapeHtml(parts.lesson.body)}</p>`
-    : `<p style="margin:0;color:#71717a">No lessons captured yet.</p>`;
+  const lessonHtml =
+    parts.lessons.length > 0
+      ? `<ul style="margin:0;padding-left:18px">${parts.lessons
+          .map(
+            (l) =>
+              `<li style="white-space:pre-wrap;margin:0 0 8px 0">${escapeHtml(l.body)}</li>`,
+          )
+          .join("")}</ul>`
+      : `<p style="margin:0;color:#71717a">No lessons captured yet.</p>`;
 
-  const lessonText = parts.lesson
-    ? parts.lesson.body
-    : "No lessons captured yet.";
+  const lessonText =
+    parts.lessons.length > 0
+      ? parts.lessons.map((l) => `- ${l.body}`).join("\n")
+      : "No lessons captured yet.";
 
   // Reminders due today — the whole point of the tool. Shown near the top.
   const remindersSectionHtml =
@@ -89,7 +96,7 @@ export function renderMorningEmail(parts: {
 <html><body style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#18181b">
   <h1 style="font-size:18px;margin:0 0 24px 0;color:#71717a;font-weight:500">${dateLabel}</h1>
   <section style="margin-bottom:24px">
-    <h2 style="font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:#71717a;margin:0 0 8px 0">Lesson of the day</h2>
+    <h2 style="font-size:12px;letter-spacing:0.05em;text-transform:uppercase;color:#71717a;margin:0 0 8px 0">Lessons of the day</h2>
     ${lessonHtml}
   </section>
   ${remindersSectionHtml}
@@ -97,7 +104,7 @@ export function renderMorningEmail(parts: {
   ${giftSectionHtml}
 </body></html>`;
 
-  const textParts = [dateLabel, "", "LESSON OF THE DAY", lessonText];
+  const textParts = [dateLabel, "", "LESSONS OF THE DAY", lessonText];
   if (parts.reminders.length > 0) {
     textParts.push(
       "",

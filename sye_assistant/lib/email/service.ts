@@ -36,7 +36,7 @@ class EmailService {
   // High-level: render and send the daily morning digest. New tools that want
   // a section in this email plug into renderMorningEmail's args.
   async sendMorningDigest(args: {
-    lesson: Lesson | null;
+    lessons: Lesson[];
     birthdays: BirthdayDigest;
     reminders: Reminder[];
     date: Date;

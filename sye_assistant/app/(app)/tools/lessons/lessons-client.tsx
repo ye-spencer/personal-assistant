@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { Pencil, Shuffle, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Shuffle, Trash2 } from "lucide-react";
 import {
   createLesson,
   deleteLesson,
@@ -12,6 +12,8 @@ import type { Lesson } from "@/lib/db/schema";
 
 type View = "all" | "shuffle";
 
+const PAGE_SIZE = 25;
+
 export function LessonsClient({ initialLessons }: { initialLessons: Lesson[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
@@ -19,6 +21,7 @@ export function LessonsClient({ initialLessons }: { initialLessons: Lesson[] }) 
   const [draft, setDraft] = useState("");
   const [editingId, setEditingId] = useState<number | null>(null);
   const [editDraft, setEditDraft] = useState("");
+  const [page, setPage] = useState(0);
   const [shuffleIndex, setShuffleIndex] = useState(() =>
     initialLessons.length > 0
       ? Math.floor(Math.random() * initialLessons.length)
@@ -28,6 +31,15 @@ export function LessonsClient({ initialLessons }: { initialLessons: Lesson[] }) 
   const lessons = initialLessons;
   const sortedNewestFirst = [...lessons].sort(
     (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+  );
+
+  // Clamp rather than reset so deleting the last item of the final page lands
+  // on the new final page instead of an empty one.
+  const pageCount = Math.max(1, Math.ceil(sortedNewestFirst.length / PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount - 1);
+  const pageLessons = sortedNewestFirst.slice(
+    currentPage * PAGE_SIZE,
+    (currentPage + 1) * PAGE_SIZE,
   );
 
   function handleCreate(e: React.FormEvent) {
@@ -84,7 +96,7 @@ export function LessonsClient({ initialLessons }: { initialLessons: Lesson[] }) 
       <header className="mb-6">
         <h1 className="text-2xl font-semibold">Lessons</h1>
         <p className="text-sm text-zinc-500">
-          Capture ideas you&apos;ve learned. One gets resurfaced each day on
+          Capture ideas you&apos;ve learned. Three get resurfaced each day on
           the dashboard and in the morning email.
         </p>
       </header>
@@ -125,11 +137,12 @@ export function LessonsClient({ initialLessons }: { initialLessons: Lesson[] }) 
       </div>
 
       {view === "all" ? (
+        <>
         <ul className="flex flex-col gap-3">
           {sortedNewestFirst.length === 0 ? (
             <li className="text-sm text-zinc-500">No lessons yet.</li>
           ) : (
-            sortedNewestFirst.map((lesson) => (
+            pageLessons.map((lesson) => (
               <li
                 key={lesson.id}
                 className="p-3 rounded-lg border border-zinc-200 dark:border-zinc-800"
@@ -188,6 +201,30 @@ export function LessonsClient({ initialLessons }: { initialLessons: Lesson[] }) 
             ))
           )}
         </ul>
+        {pageCount > 1 && (
+          <nav className="mt-4 flex items-center justify-between">
+            <button
+              onClick={() => setPage(currentPage - 1)}
+              disabled={currentPage === 0}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-sm disabled:opacity-50 disabled:pointer-events-none"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </button>
+            <p className="text-sm text-zinc-500">
+              Page {currentPage + 1} of {pageCount}
+            </p>
+            <button
+              onClick={() => setPage(currentPage + 1)}
+              disabled={currentPage >= pageCount - 1}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-900 text-sm disabled:opacity-50 disabled:pointer-events-none"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </nav>
+        )}
+        </>
       ) : (
         <div className="p-6 rounded-lg border border-zinc-200 dark:border-zinc-800 min-h-32 flex flex-col">
           {lessons.length === 0 ? (
