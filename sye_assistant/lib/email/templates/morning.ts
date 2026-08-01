@@ -1,4 +1,4 @@
-import type { Lesson, Reminder } from "@/lib/db/schema";
+import type { Contact, Lesson, Reminder } from "@/lib/db/schema";
 import type { BirthdayDigest, UpcomingBirthday } from "@/lib/people/daily";
 import { formatBirthdayShort, fullName } from "@/lib/people/format";
 
@@ -26,6 +26,7 @@ export function renderMorningEmail(parts: {
   lessons: Lesson[];
   birthdays: BirthdayDigest;
   reminders: Reminder[];
+  reachOut: Contact | null;
   date: Date;
 }): { subject: string; html: string; text: string } {
   const dateLabel = parts.date.toLocaleDateString("en-US", {
@@ -92,6 +93,20 @@ export function renderMorningEmail(parts: {
         )
       : "";
 
+  // A random person worth reaching out to — name, plus how-we-met / info to jog
+  // the memory if they're set.
+  const reachOutLine = (c: Contact): string => {
+    const context = [c.howWeMet, c.info].map((s) => s.trim()).filter(Boolean)[0];
+    return context ? `${fullName(c)} — ${context}` : fullName(c);
+  };
+
+  const reachOutSectionHtml = parts.reachOut
+    ? section(
+        "Reach out to",
+        `<p style="margin:0">${escapeHtml(reachOutLine(parts.reachOut))}</p>`,
+      )
+    : "";
+
   const html = `<!doctype html>
 <html><body style="font-family:system-ui,-apple-system,sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#18181b">
   <h1 style="font-size:18px;margin:0 0 24px 0;color:#71717a;font-weight:500">${dateLabel}</h1>
@@ -100,6 +115,7 @@ export function renderMorningEmail(parts: {
     ${lessonHtml}
   </section>
   ${remindersSectionHtml}
+  ${reachOutSectionHtml}
   ${soonSectionHtml}
   ${giftSectionHtml}
 </body></html>`;
@@ -111,6 +127,9 @@ export function renderMorningEmail(parts: {
       "REMINDERS — TODAY",
       ...parts.reminders.map((r) => `- ${r.body}`),
     );
+  }
+  if (parts.reachOut) {
+    textParts.push("", "REACH OUT TO", reachOutLine(parts.reachOut));
   }
   if (soon.length > 0) {
     textParts.push(

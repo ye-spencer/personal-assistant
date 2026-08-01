@@ -1,4 +1,4 @@
-import { asc, isNotNull } from "drizzle-orm";
+import { asc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { contacts, type Contact } from "@/lib/db/schema";
 import { daysUntilBirthday } from "./format";
@@ -55,4 +55,17 @@ export async function getBirthdayDigest(
       )
       .sort((a, b) => a.inDays - b.inDays),
   };
+}
+
+// One random contact the user marked as reach-outable, for the morning email's
+// "reach out to someone" nudge. null if no one is marked. Randomization happens
+// in JS (not SQL) to keep it simple and portable across the contact set, which
+// is small enough that fetching all reach-outable rows is cheap.
+export async function getRandomReachoutable(): Promise<Contact | null> {
+  const rows = await db
+    .select()
+    .from(contacts)
+    .where(eq(contacts.reachoutable, true));
+  if (rows.length === 0) return null;
+  return rows[Math.floor(Math.random() * rows.length)];
 }

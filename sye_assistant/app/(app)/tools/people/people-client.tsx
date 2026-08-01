@@ -3,7 +3,14 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState, useTransition } from "react";
-import { Cake, ChevronRight, Gift, Plus, Search } from "lucide-react";
+import {
+  Cake,
+  ChevronRight,
+  Gift,
+  MessageCircle,
+  Plus,
+  Search,
+} from "lucide-react";
 import { createContact } from "@/lib/people/actions";
 import { formatBirthdayShort, fullName, matchesQuery } from "@/lib/people/format";
 import type { Contact } from "@/lib/db/schema";
@@ -20,6 +27,7 @@ const EMPTY_DRAFT = {
   howWeMet: "",
   info: "",
   giftPlanning: false,
+  reachoutable: false,
 };
 
 export function PeopleClient({
@@ -148,6 +156,16 @@ export function PeopleClient({
             />
             Include in gift planning
           </label>
+          <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <input
+              type="checkbox"
+              checked={draft.reachoutable}
+              onChange={(e) =>
+                setDraft({ ...draft, reachoutable: e.target.checked })
+              }
+            />
+            Reach-outable (nudge me to keep in touch)
+          </label>
           <div className="flex justify-end gap-2">
             <button
               type="button"
@@ -201,6 +219,12 @@ export function PeopleClient({
                   <Gift
                     className="w-4 h-4 text-zinc-400"
                     aria-label="In gift planning"
+                  />
+                )}
+                {c.reachoutable && (
+                  <MessageCircle
+                    className="w-4 h-4 text-zinc-400"
+                    aria-label="Reach-outable"
                   />
                 )}
                 {formatBirthdayShort(c) && (

@@ -1,6 +1,6 @@
 import { Resend } from "resend";
 import { env } from "@/env";
-import type { Lesson, Reminder } from "@/lib/db/schema";
+import type { Contact, Lesson, Reminder } from "@/lib/db/schema";
 import type { BirthdayDigest } from "@/lib/people/daily";
 import { renderMorningEmail } from "./templates/morning";
 
@@ -39,6 +39,7 @@ class EmailService {
     lessons: Lesson[];
     birthdays: BirthdayDigest;
     reminders: Reminder[];
+    reachOut: Contact | null;
     date: Date;
   }): Promise<void> {
     const rendered = renderMorningEmail(args);
