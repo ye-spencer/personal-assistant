@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
-import { ArrowLeft, Check, Gift, Pencil, Trash2, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Check,
+  Gift,
+  MessageCircle,
+  Pencil,
+  Trash2,
+  X,
+} from "lucide-react";
 import {
   addContactNote,
   deleteContact,
@@ -27,6 +35,7 @@ function toFields(c: Contact): ContactFields {
     howWeMet: c.howWeMet,
     info: c.info,
     giftPlanning: c.giftPlanning,
+    reachoutable: c.reachoutable,
   };
 }
 
@@ -185,6 +194,16 @@ export function ContactDetail({
             />
             Include in gift planning
           </label>
+          <label className="flex items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
+            <input
+              type="checkbox"
+              checked={form.reachoutable}
+              onChange={(e) =>
+                setForm({ ...form, reachoutable: e.target.checked })
+              }
+            />
+            Reach-outable (nudge me to keep in touch)
+          </label>
           <div className="flex justify-between">
             <button
               onClick={handleDeleteContact}
@@ -226,6 +245,12 @@ export function ContactDetail({
                 <Gift
                   className="w-5 h-5 text-zinc-400"
                   aria-label="In gift planning"
+                />
+              )}
+              {contact.reachoutable && (
+                <MessageCircle
+                  className="w-5 h-5 text-zinc-400"
+                  aria-label="Reach-outable"
                 />
               )}
             </h1>

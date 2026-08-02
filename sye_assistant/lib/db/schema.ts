@@ -73,6 +73,8 @@ export type HabitEntry = typeof habitEntries.$inferSelect;
 // Birthday is split into month/day/year so the year can be unknown: month+day
 // are set together (or both null), year is independently optional. `giftPlanning`
 // is the user-set "mark" flag: contacts opted into the gift-planning workflow.
+// `reachoutable` is a similar mark: people the user is close enough to that
+// they're worth a nudge to reach out to — the morning email picks one at random.
 // Free-form per-contact notes live in `contactNotes`; `howWeMet` and `info` are
 // single fixed fields on the contact.
 export const contacts = pgTable("contacts", {
@@ -86,6 +88,7 @@ export const contacts = pgTable("contacts", {
   howWeMet: text("how_we_met").notNull().default(""),
   info: text("info").notNull().default(""),
   giftPlanning: boolean("gift_planning").notNull().default(false),
+  reachoutable: boolean("reachoutable").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });

@@ -1,0 +1,1 @@
+ALTER TABLE "contacts" ADD COLUMN "reachoutable" boolean DEFAULT false NOT NULL;

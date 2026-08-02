@@ -43,6 +43,7 @@ export type ContactFields = {
   howWeMet: string;
   info: string;
   giftPlanning: boolean;
+  reachoutable: boolean;
 };
 
 function clamp(n: number | null, min: number, max: number): number | null {
@@ -65,6 +66,7 @@ function normalize(fields: ContactFields): ContactFields {
     howWeMet: fields.howWeMet.trim(),
     info: fields.info.trim(),
     giftPlanning: fields.giftPlanning,
+    reachoutable: fields.reachoutable,
   };
 }
 

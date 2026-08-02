@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { env } from "@/env";
 import { emailService } from "@/lib/email/service";
 import { getLessonsOfTheDay } from "@/lib/lessons/daily";
-import { getBirthdayDigest } from "@/lib/people/daily";
+import { getBirthdayDigest, getRandomReachoutable } from "@/lib/people/daily";
 import { getRemindersDueToday, purgePastReminders } from "@/lib/reminders/daily";
 
 // Vercel Cron hits this with `Authorization: Bearer <CRON_SECRET>`. Same route
@@ -17,10 +17,12 @@ export async function GET(req: Request) {
   const dailyLessons = await getLessonsOfTheDay();
   const birthdays = await getBirthdayDigest(now);
   const dueReminders = await getRemindersDueToday(now);
+  const reachOut = await getRandomReachoutable();
   await emailService.sendMorningDigest({
     lessons: dailyLessons,
     birthdays,
     reminders: dueReminders,
+    reachOut,
     date: now,
   });
 
@@ -36,5 +38,6 @@ export async function GET(req: Request) {
     giftBirthdaysUpcoming: birthdays.giftingUpcoming.length,
     remindersDue: dueReminders.length,
     remindersPurged: purged,
+    reachOutId: reachOut?.id ?? null,
   });
 }
