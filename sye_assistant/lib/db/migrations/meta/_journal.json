@@ -43,6 +43,13 @@
       "when": 1783036992189,
       "tag": "0005_breezy_surge",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1785703856359,
+      "tag": "0006_kind_nitro",
+      "breakpoints": true
     }
   ]
 }
