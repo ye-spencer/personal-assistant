@@ -3,10 +3,19 @@ import { Bell, Lightbulb } from "lucide-react";
 import { tools } from "@/lib/tools/registry";
 import { getLessonsOfTheDay } from "@/lib/lessons/daily";
 import { getRemindersDueToday } from "@/lib/reminders/daily";
+import { getRecurringDueToday } from "@/lib/reminders/recurring";
 
 export default async function Home() {
   const lessonsOfTheDay = await getLessonsOfTheDay();
-  const remindersToday = await getRemindersDueToday();
+  const [oneOffToday, recurringToday] = await Promise.all([
+    getRemindersDueToday(),
+    getRecurringDueToday(),
+  ]);
+  // One-off and recurring reminders that fire today, unified for display.
+  const remindersToday = [
+    ...oneOffToday.map((r) => ({ key: `r-${r.id}`, body: r.body })),
+    ...recurringToday.map((r) => ({ key: `rec-${r.id}`, body: r.body })),
+  ];
 
   return (
     <div className="p-8">
@@ -59,7 +68,7 @@ export default async function Home() {
           >
             <ul className="flex flex-col gap-2">
               {remindersToday.map((r) => (
-                <li key={r.id} className="flex items-start gap-2 text-sm">
+                <li key={r.key} className="flex items-start gap-2 text-sm">
                   <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
                   <span className="break-words">{r.body}</span>
                 </li>

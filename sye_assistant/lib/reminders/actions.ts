@@ -4,7 +4,12 @@ import { asc, eq, gte } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
 import { db } from "@/lib/db/client";
-import { reminders, type Reminder } from "@/lib/db/schema";
+import {
+  recurringReminders,
+  reminders,
+  type RecurringReminder,
+  type Reminder,
+} from "@/lib/db/schema";
 import { todayKey } from "./dates";
 
 async function requireAuth() {
@@ -71,4 +76,74 @@ export async function listUpcomingReminders(): Promise<Reminder[]> {
     .from(reminders)
     .where(gte(reminders.dueOn, todayKey()))
     .orderBy(asc(reminders.dueOn), asc(reminders.id));
+}
+
+// ── Recurring reminders ────────────────────────────────────────────────────
+// Durable "repeat every N days" definitions. These are never materialized into
+// one-off `reminders` rows; whether they fire on a day is computed on the fly
+// (see lib/reminders/recurring + dates).
+
+function normalizeInterval(intervalDays: number): number {
+  if (!Number.isInteger(intervalDays) || intervalDays < 1) {
+    throw new Error("Repeat interval must be a whole number of days (1 or more)");
+  }
+  return intervalDays;
+}
+
+export async function createRecurringReminder(
+  body: string,
+  startOn: string,
+  intervalDays: number,
+): Promise<RecurringReminder> {
+  await requireAuth();
+  const trimmed = body.trim();
+  if (!trimmed) throw new Error("Reminder text cannot be empty");
+  const [row] = await db
+    .insert(recurringReminders)
+    .values({
+      body: trimmed,
+      startOn: normalizeDueOn(startOn),
+      intervalDays: normalizeInterval(intervalDays),
+    })
+    .returning();
+  revalidatePath("/tools/reminders");
+  return row;
+}
+
+export async function updateRecurringReminder(
+  id: number,
+  body: string,
+  startOn: string,
+  intervalDays: number,
+): Promise<RecurringReminder> {
+  await requireAuth();
+  const trimmed = body.trim();
+  if (!trimmed) throw new Error("Reminder text cannot be empty");
+  const [row] = await db
+    .update(recurringReminders)
+    .set({
+      body: trimmed,
+      startOn: normalizeDueOn(startOn),
+      intervalDays: normalizeInterval(intervalDays),
+      updatedAt: new Date(),
+    })
+    .where(eq(recurringReminders.id, id))
+    .returning();
+  if (!row) throw new Error("Recurring reminder not found");
+  revalidatePath("/tools/reminders");
+  return row;
+}
+
+export async function deleteRecurringReminder(id: number): Promise<void> {
+  await requireAuth();
+  await db.delete(recurringReminders).where(eq(recurringReminders.id, id));
+  revalidatePath("/tools/reminders");
+}
+
+export async function listRecurringReminders(): Promise<RecurringReminder[]> {
+  await requireAuth();
+  return db
+    .select()
+    .from(recurringReminders)
+    .orderBy(asc(recurringReminders.startOn), asc(recurringReminders.id));
 }
