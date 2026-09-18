@@ -3,6 +3,12 @@ import { db } from "@/lib/db/client";
 import { reminders, type Reminder } from "@/lib/db/schema";
 import { todayKey } from "./dates";
 
+// A reminder as it appears in the "due today" surfaces (morning email, home
+// page): one-off `Reminder`s and recurring reminders that fire today both
+// collapse to just their text once merged, so only `body` is needed here. Both
+// `Reminder` and `RecurringReminder` are structurally assignable to this.
+export type DueReminder = { body: string };
+
 // Reminders due on the given day (default today, in APP_TIME_ZONE) — the set
 // that goes into the morning email.
 export async function getRemindersDueToday(

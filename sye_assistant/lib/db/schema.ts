@@ -36,6 +36,26 @@ export const reminders = pgTable("reminders", {
 export type Reminder = typeof reminders.$inferSelect;
 export type NewReminder = typeof reminders.$inferInsert;
 
+// Repeating reminders. Unlike `reminders` (one-off rows that get purged the day
+// after they fire), a recurring reminder is a single durable *definition*: it is
+// never materialized into `reminders` rows. Whether it fires on a given day is
+// pure math — `(day - startOn)` is a non-negative whole multiple of
+// `intervalDays` (see lib/reminders/dates). `startOn` is the anchor / first
+// occurrence; `intervalDays` is "repeat every N days" (>= 1). It repeats forever
+// until deleted. Surfaced in the morning email on any day it fires, same as a
+// one-off reminder.
+export const recurringReminders = pgTable("recurring_reminders", {
+  id: serial("id").primaryKey(),
+  body: text("body").notNull(),
+  startOn: date("start_on").notNull(),
+  intervalDays: integer("interval_days").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export type RecurringReminder = typeof recurringReminders.$inferSelect;
+export type NewRecurringReminder = typeof recurringReminders.$inferInsert;
+
 // Habits the user tracks. Columns in the tracker grid. `tier` (1|2|3) groups
 // habits into colored sections; `sortOrder` orders them within a tier.
 // `archivedAt` hides a habit from the grid while preserving its history.

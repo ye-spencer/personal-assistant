@@ -1,5 +1,6 @@
-import type { Contact, Lesson, Reminder } from "@/lib/db/schema";
+import type { Contact, Lesson } from "@/lib/db/schema";
 import type { BirthdayDigest, UpcomingBirthday } from "@/lib/people/daily";
+import type { DueReminder } from "@/lib/reminders/daily";
 import { formatBirthdayShort, fullName } from "@/lib/people/format";
 
 function escapeHtml(s: string): string {
@@ -25,7 +26,9 @@ function relativeDays(n: number): string {
 export function renderMorningEmail(parts: {
   lessons: Lesson[];
   birthdays: BirthdayDigest;
-  reminders: Reminder[];
+  // Everything due today — one-off reminders and any recurring reminders that
+  // fire today, already merged by the caller. Only the text matters here.
+  reminders: DueReminder[];
   reachOut: Contact | null;
   date: Date;
 }): { subject: string; html: string; text: string } {

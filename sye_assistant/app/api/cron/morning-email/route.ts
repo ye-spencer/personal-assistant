@@ -4,6 +4,7 @@ import { emailService } from "@/lib/email/service";
 import { getLessonsOfTheDay } from "@/lib/lessons/daily";
 import { getBirthdayDigest, getRandomReachoutable } from "@/lib/people/daily";
 import { getRemindersDueToday, purgePastReminders } from "@/lib/reminders/daily";
+import { getRecurringDueToday } from "@/lib/reminders/recurring";
 
 // Vercel Cron hits this with `Authorization: Bearer <CRON_SECRET>`. Same route
 // can be invoked manually from a terminal with curl for testing.
@@ -17,11 +18,15 @@ export async function GET(req: Request) {
   const dailyLessons = await getLessonsOfTheDay();
   const birthdays = await getBirthdayDigest(now);
   const dueReminders = await getRemindersDueToday(now);
+  const recurringDue = await getRecurringDueToday(now);
   const reachOut = await getRandomReachoutable();
+  // One-off and recurring reminders that fire today share the same email
+  // section — merge them (one-offs first, then recurring).
+  const remindersForEmail = [...dueReminders, ...recurringDue];
   await emailService.sendMorningDigest({
     lessons: dailyLessons,
     birthdays,
-    reminders: dueReminders,
+    reminders: remindersForEmail,
     reachOut,
     date: now,
   });
@@ -37,6 +42,7 @@ export async function GET(req: Request) {
     birthdaysSoon: birthdays.soon.length,
     giftBirthdaysUpcoming: birthdays.giftingUpcoming.length,
     remindersDue: dueReminders.length,
+    recurringRemindersDue: recurringDue.length,
     remindersPurged: purged,
     reachOutId: reachOut?.id ?? null,
   });

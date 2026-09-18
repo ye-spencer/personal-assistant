@@ -1,7 +1,8 @@
 import { Resend } from "resend";
 import { env } from "@/env";
-import type { Contact, Lesson, Reminder } from "@/lib/db/schema";
+import type { Contact, Lesson } from "@/lib/db/schema";
 import type { BirthdayDigest } from "@/lib/people/daily";
+import type { DueReminder } from "@/lib/reminders/daily";
 import { renderMorningEmail } from "./templates/morning";
 
 type SendArgs = {
@@ -38,7 +39,7 @@ class EmailService {
   async sendMorningDigest(args: {
     lessons: Lesson[];
     birthdays: BirthdayDigest;
-    reminders: Reminder[];
+    reminders: DueReminder[];
     reachOut: Contact | null;
     date: Date;
   }): Promise<void> {
